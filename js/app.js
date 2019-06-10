@@ -72,7 +72,7 @@
 		watch:{
 			todos: {
 				handler(){
-					console.log(1)
+					// console.log(1)
 					// 这里为this.todos
 					window.localStorage.setItem('todos',JSON.stringify(this.todos))
 				},
