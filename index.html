@@ -4,61 +4,83 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>Template • TodoMVC</title>
-		<link rel="stylesheet" href="node_modules/todomvc-common/base.css">
-		<link rel="stylesheet" href="node_modules/todomvc-app-css/index.css">
+		<link rel="stylesheet" href="./css/app.css">
+		<link rel="stylesheet" href="./css/index.css">
 		<!-- CSS overrides - remove if you don't need it -->
-		<link rel="stylesheet" href="css/app.css">
+		<!-- <link rel="stylesheet" href="css/app.css"> -->
 	</head>
 	<body>
-		<section class="todoapp">
+		<section class="todoapp" id='app'>
 			<header class="header">
 				<h1>todos</h1>
-				<input class="new-todo" placeholder="What needs to be done?" autofocus>
+				<input class="new-todo"
+				@keydown.enter = 'handleNewTodoKeyDown'
+				 placeholder="What needs to be done?" autofocus v-focus>
 			</header>
 			<!-- This section should be hidden by default and shown when there are todos -->
-			<section class="main">
-				<input id="toggle-all" class="toggle-all" type="checkbox">
-				<label for="toggle-all">Mark all as complete</label>
-				<ul class="todo-list">
-					<!-- These are here just to show the structure of the list items -->
-					<!-- List items should get the class `editing` when editing and `completed` when marked as completed -->
-					<li class="completed">
-						<div class="view">
-							<input class="toggle" type="checkbox" checked>
-							<label>Taste JavaScript</label>
-							<button class="destroy"></button>
-						</div>
-						<input class="edit" value="Create a TodoMVC template">
-					</li>
-					<li>
-						<div class="view">
-							<input class="toggle" type="checkbox">
-							<label>Buy a unicorn</label>
-							<button class="destroy"></button>
-						</div>
-						<input class="edit" value="Rule the web">
-					</li>
-				</ul>
-			</section>
-			<!-- This footer should hidden by default and shown when there are todos -->
-			<footer class="footer">
-				<!-- This should be `0 items left` by default -->
-				<span class="todo-count"><strong>0</strong> item left</span>
-				<!-- Remove this if you don't implement routing -->
-				<ul class="filters">
-					<li>
-						<a class="selected" href="#/">All</a>
-					</li>
-					<li>
-						<a href="#/active">Active</a>
-					</li>
-					<li>
-						<a href="#/completed">Completed</a>
-					</li>
-				</ul>
-				<!-- Hidden if no completed items are left ↓ -->
-				<button class="clear-completed">Clear completed</button>
-			</footer>
+			<template v-if='todos.length'>
+				<section class="main">
+					<!-- <input id="toggle-all"
+					 :checked='toggleAllStat'
+					 @change='handleToggleAllChange'
+					 class="toggle-all" type="checkbox"> -->
+					<!-- 双向绑定 -->
+					 <input id="toggle-all"
+					 v-model='toggleAllStat'
+					 class="toggle-all" type="checkbox">
+					<label for="toggle-all">Mark all as complete</label>
+					<ul class="todo-list">
+						<!-- These are here just to show the structure of the list items -->
+						<!-- List items should get the class `editing` when editing and `completed` when marked as completed -->
+						
+						<li 
+						:class='{completed: todo.completed,
+										 editing: currentEditing == todo.id
+								}'
+						v-for='(todo, index) in filterTodos' :key='todo.id'>
+							<div class="view">
+								<input 
+								v-model='todo.completed'
+								
+								class="toggle"
+								type="checkbox">
+								<label @dblclick='handleGetEditingDblclick(todo.id)'>{{todo.title}}</label>
+								<button 
+								@click='handleRemoveTodoClick(index)'
+								class="destroy"></button>
+							</div>
+							<input 
+							@keydown.enter='handleSaveEditKeyDown($event,index,todo)'
+							@blur='handleSaveEditKeyDown($event,index,todo)'
+							@keydown.esc='handleCancleEditEsc'
+							v-todofocus='currentEditing == todo.id'
+							class="edit" :value="todo.title">
+						</li>
+					</ul>
+				</section>
+				<!-- This footer should hidden by default and shown when there are todos -->
+				<footer class="footer">
+					<!-- This should be `0 items left` by default -->
+					<span class="todo-count"><strong>{{remainingCount}}</strong> item left</span>
+					<!-- Remove this if you don't implement routing -->
+					<ul class="filters">
+						<li>
+							<a :class="{selected: filterText == ''}" href="#/">All</a>
+						</li>
+						<li>
+							<a :class="{selected: filterText == 'active'}" href="#/active">Active</a>
+						</li>
+						<li>
+							<a :class="{selected: filterText == 'completed'}" href="#/completed">Completed</a>
+						</li>
+					</ul>
+					<!-- Hidden if no completed items are left ↓ -->
+					<button 
+					v-if='clearCompleted'
+					@click='handleClickAllDown'
+					class="clear-completed">Clear completed</button>
+				</footer>
+			</template>
 		</section>
 		<footer class="info">
 			<p>Double-click to edit a todo</p>
@@ -69,7 +91,8 @@
 			<p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
 		</footer>
 		<!-- Scripts here. Don't remove ↓ -->
-		<script src="node_modules/todomvc-common/base.js"></script>
+		<!-- <script src="node_modules/todomvc-common/base.js"></script> -->
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
 		<script src="js/app.js"></script>
 	</body>
 </html>
